@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packing Algorithm Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Title -->
+    <header>
+      <h1>Packing Algorithm Demo</h1>
+      <p>Based on the article: <em>Your Algorithm Name Here</em></p>
+    </header>
+
+    <!-- Expandables -->
+    <section class="expandables">
+      <details>
+        <summary>🧠 About the Algorithm</summary>
+        <p>Explain your algorithm here. You can include citation, behavior, etc.</p>
+      </details>
+
+      <details>
+        <summary>📘 How to Use</summary>
+        <p>Instructions on how users can input data, what to expect as output, etc.</p>
+      </details>
+
+      <details>
+        <summary>👩‍💻 About the Developer</summary>
+        <p>Write about yourself, your background, links to your GitHub, etc.</p>
+      </details>
+    </section>
+
+    <!-- Input Section -->
+    <section class="form-section">
+      <form method="POST">
+        <label>Items (comma-separated):</label>
+        <input type="text" name="items" id="items" placeholder="e.g., 300, 150, 200, 400" />
+
+        <label>Bin Size:</label>
+        <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" />
+
+        {% if error_message %}
+          <div class="error">{{ error_message }}</div>
+        {% endif %}
+
+        <div class="button-row">
+          <button type="submit">Run Algorithm</button>
+          <button type="button" onclick="fillExample()">Use Example Input</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Output Section -->
+    {% if output %}
+    <!-- <section class="output-section">
+      <h2>📦 Output:</h2>
+      <pre>{{ output }}</pre>
+
+      <h3>🪵 Run Logs:</h3>
+      <pre>{{ logs }}</pre>
+    </section> -->
+    <section class="output-section" id="results">
+    <h2>📦 Output:</h2>
+    <pre>{{ output }}</pre>
+
+    <h3>🪵 Run Logs:</h3>
+    <pre>{{ logs }}</pre>
+    </section>
+    {% endif %}
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // function fillExample() {
+    //   document.getElementById("items").value = "300, 150, 200, 400, 100";
+    //   document.getElementById("binsize").value = 1000;
+    // }
+    function fillExample() {
+        const itemCount = Math.floor(Math.random() * 10) + 5;
+        const items = Array.from({ length: itemCount }, () =>
+        Math.floor(Math.random() * 400) + 100
+        );
+        const binsize = Math.floor(Math.random() * 500) + 800;
+
+        document.getElementById("items").value = items.join(", ");
+        document.getElementById("binsize").value = binsize;
+    }
+
+    // // Scroll to the output if it exists
+    // window.onload = function () {
+    //     const outputSection = document.querySelector(".output-section");
+    //     if (outputSection) {
+    //     outputSection.scrollIntoView({ behavior: "smooth" });
+    //     }
+    // };
+
+    const results = document.getElementById("results");
+    if (results) {
+    results.scrollIntoView({ behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
