@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 </head>
+<!-- Loading Spinner Overlay -->
+<div id="loading-overlay">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <p class="loading-text">Calculating...</p>
+  </div>
+</div>
+
 <body>
 
   <div class="container">
@@ -75,10 +83,20 @@
 
   <!-- JavaScript -->
   <script>
-    // function fillExample() {
-    //   document.getElementById("items").value = "300, 150, 200, 400, 100";
-    //   document.getElementById("binsize").value = 1000;
-    // }
+    // Show spinner on form submit
+    document.querySelector("form").addEventListener("submit", function () {
+        document.getElementById("loading-overlay").style.display = "flex";
+    });
+
+    // Scroll to results after reload
+    window.onload = function () {
+        const results = document.getElementById("results");
+        if (results) {
+        results.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
+    // Fill example input
     function fillExample() {
         const itemCount = Math.floor(Math.random() * 10) + 5;
         const items = Array.from({ length: itemCount }, () =>

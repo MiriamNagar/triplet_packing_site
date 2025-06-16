@@ -1,4 +1,5 @@
 # your_algorithm_module.py
+import time
 
 def run_algorithm(items, binsize):
     # Dummy implementation — replace with your actual logic
@@ -19,4 +20,5 @@ def run_algorithm(items, binsize):
 
     output = "\n".join(f"Bin {i + 1}: {b}" for i, b in enumerate(bins))
     logs = f"Total bins used: {len(bins)}\nItems: {items}\nBin size: {binsize}"
+    time.sleep(3)
     return output, logs
