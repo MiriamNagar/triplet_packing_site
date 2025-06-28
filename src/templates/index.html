@@ -51,6 +51,28 @@
         <label>Bin Size:</label>
         <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" />
 
+        <label>method:</label>
+        <select name="method" id="method">
+          <option value="backtracking">backtracking</option>
+          <option value="local search">local search</option>
+        </select>
+
+        <label for="log_level">Log Level:</label>
+          <select id="log_level" name="log_level">
+            <option value="DEBUG" {% if selected_log_level == "DEBUG" %}selected{% endif %}>DEBUG</option>
+            <option value="INFO" {% if selected_log_level == "INFO" %}selected{% endif %}>INFO</option>
+            <option value="WARNING" {% if selected_log_level == "WARNING" %}selected{% endif %}>WARNING</option>
+            <option value="ERROR" {% if selected_log_level == "ERROR" %}selected{% endif %}>ERROR</option>
+            <option value="CRITICAL" {% if selected_log_level == "CRITICAL" %}selected{% endif %}>CRITICAL</option>
+          </select>
+
+        <!-- <label for="binners">Select Binner:</label>
+        <select name="binners" id="binners">
+          {% for binner in binners %}
+            <option value="{{ binner }}">{{ binner }}</option>
+          {% endfor %}
+        </select> -->
+
         {% if error_message %}
           <div class="error">{{ error_message }}</div>
         {% endif %}
@@ -96,17 +118,40 @@
         }
     };
 
-    // Fill example input
-    function fillExample() {
-        const itemCount = Math.floor(Math.random() * 10) + 5;
-        const items = Array.from({ length: itemCount }, () =>
-        Math.floor(Math.random() * 400) + 100
-        );
-        const binsize = Math.floor(Math.random() * 500) + 800;
+  function fillExample() {
+    // Constants similar to Python defaults
+    const DEFAULT_BIN_SIZE = 1000;
+    const DEFAULT_ITEM_NUM = 60;
+    const MIN_BIN_SIZE = 50;
+    const ITEM_NUM = 18;
 
-        document.getElementById("items").value = items.join(", ");
-        document.getElementById("binsize").value = binsize;
+    // Randomly choose bin_size and items_num (multiple of 3)
+    let bin_size = Math.floor(Math.random() * 900) + 100; // 100–1000
+    bin_size = Math.max(bin_size, MIN_BIN_SIZE);
+
+    // let items_num = Math.floor(Math.random() * 30) * 3 + 3; // multiples of 3, between 3 and 90
+    // items_num = Math.max(items_num, MIN_ITEM_NUM);
+
+    const lower_bnd = Math.round(bin_size / 4);
+    const upper_bnd = Math.round(bin_size / 2);
+
+    const items = [];
+
+    for (let i = 0; i < ITEM_NUM / 3; i++) {
+      const item1 = getRandomInt(lower_bnd, upper_bnd);
+      const item2 = getRandomInt(lower_bnd, upper_bnd);
+      const item3 = bin_size - (item1 + item2);
+      items.push(item1, item2, item3);
     }
+
+    document.getElementById("items").value = items.join(", ");
+    document.getElementById("binsize").value = bin_size;
+  }
+
+  // Random integer between min and max, inclusive
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
     // // Scroll to the output if it exists
     // window.onload = function () {

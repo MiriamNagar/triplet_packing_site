@@ -1,0 +1,15 @@
+# version: 1
+# disable_existing_loggers: False
+
+# formatters:
+#   detailed:
+#     format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# loggers:
+#   myalgo:
+#     level: DEBUG
+#     propagate: False  # Don't double log if root has handlers
+
+# root:
+#   level: WARNING
+#   handlers: []
