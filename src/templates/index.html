@@ -7,15 +7,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 </head>
-<!-- Loading Spinner Overlay -->
-<div id="loading-overlay">
-  <div class="loading-content">
-    <div class="spinner"></div>
-    <p class="loading-text">Calculating...</p>
-  </div>
-</div>
-
 <body>
+
+  <!-- Loading Spinner Overlay -->
+  <div id="loading-overlay" style="display:none;">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-text">Calculating...</p>
+    </div>
+  </div>
 
   <div class="container">
     <!-- Title -->
@@ -26,6 +26,7 @@
 
     <!-- Expandables -->
     <section class="expandables">
+
       <details>
         <summary>🧠 About the Algorithm</summary>
         <p>
@@ -35,9 +36,7 @@
         <p>
           The core algorithm is implemented using <code>triplet_algo</code> from the <a href="https://github.com/coin-or/prtpy" target="_blank" rel="noopener noreferrer">prtpy</a> library.
         </p>
-        <p>
-          Two solving strategies are supported:
-        </p>
+        <p>Two solving strategies are supported:</p>
         <ul>
           <li><strong>Backtracking</strong> – an exhaustive recursive approach.</li>
           <li><strong>Local Search</strong> – a heuristic method to improve solutions iteratively.</li>
@@ -50,7 +49,6 @@
         </p>
       </details>
 
-
       <details>
         <summary>📘 How to Use</summary>
         <ol>
@@ -59,7 +57,7 @@
           <li>Choose a <strong>method</strong>: Backtracking or Local Search.</li>
           <li>Optionally select a <strong>log level</strong> to control the verbosity of the internal algorithm trace.</li>
           <li>Click <strong>Run Algorithm</strong> to see the result.</li>
-          <li>To try a random valid instance, click <strong>Use Random Example Input</strong>. You can also first input the number of items you want to randomly generate and than click the <strong>Use Random Example Input</strong> to generate an exact items number</li>
+          <li>To try a random valid instance, click <strong>Use Random Example Input</strong>. You can also first input the number of items you want to randomly generate and then click <strong>Use Random Example Input</strong> to generate that exact number of items.</li>
         </ol>
         <p>Errors (e.g., if triplet grouping is not possible) will be displayed with a detailed message.</p>
       </details>
@@ -73,21 +71,19 @@
           My project focuses on the <strong>Triplet Packing Problem</strong> — a constrained variation of bin packing where items must be grouped into triplets such that each group exactly fills a bin. I implemented and demonstrated both a backtracking-based solver and a local search heuristic.
         </p>
         <p>
-          The project builds on the algorithmic framework proposed in the paper:<br>
-          <em>"Solution of Bin Packing Instances in Falkenauer T Class: Not So Hard"</em><br>
-          by György Dósa, András Éles, Angshuman Robin Goswami, István Szalkai, Zsolt Tuza<br>
+          The project builds on the algorithmic framework proposed in the paper:<br />
+          <em>"Solution of Bin Packing Instances in Falkenauer T Class: Not So Hard"</em><br />
+          by György Dósa, András Éles, Angshuman Robin Goswami, István Szalkai, Zsolt Tuza<br />
           📄 <a href="https://www.mdpi.com/1999-4893/18/2/115#" target="_blank" rel="noopener noreferrer">Link to article</a>
         </p>
         <p>
           I integrated my implementation into a fork of the open-source Python library <code>prtpy</code>, which provides flexible tools for modeling and solving packing and partitioning problems.
         </p>
         <p>
-          You can view the full project code and this interactive demo site here:<br>
+          You can view the full project code and this interactive demo site here:<br />
           🔗 <a href="https://github.com/MiriamNagar/triplet_packing_site" target="_blank" rel="noopener noreferrer">github.com/MiriamNagar/triplet_packing_site</a>
         </p>
-        <p>
-          Thanks for visiting and happy packing! 📦
-        </p>
+        <p>Thanks for visiting and happy packing! 📦</p>
       </details>
 
     </section>
@@ -96,35 +92,52 @@
     <section class="form-section">
       <form method="POST">
 
-        <label>Number of Items:</label>
-        <input type="number" name="num_items" id="num_items" placeholder="Optional – multiple of 3" value="{{ request.form.get('num_items', '') }}" />
-        
-        <label>Items (comma-separated):</label>
-        <textarea name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400">{{ request.form.get('items', '') }}</textarea>
+        <label for="num_items">Number of Items:</label>
+        <input
+          type="number"
+          name="num_items"
+          id="num_items"
+          placeholder="Optional – multiple of 3"
+          value="{{ request.form.get('num_items', '') }}"
+        />
 
-        <label>Bin Size:</label>
-        <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" value="{{ request.form.get('binsize', '') }}" />
+        <label for="items">Items (comma-separated):</label>
+        <textarea
+          name="items"
+          id="items"
+          rows="3"
+          placeholder="e.g., 300, 150, 200, 400"
+        >{{ request.form.get('items', '') }}</textarea>
 
-        <label>Method:</label>
+        <label for="binsize">Bin Size:</label>
+        <input
+          type="number"
+          name="binsize"
+          id="binsize"
+          placeholder="e.g., 1000"
+          value="{{ request.form.get('binsize', '') }}"
+        />
+
+        <label for="method">Method:</label>
         <select name="method" id="method">
           <option value="backtracking">Backtracking</option>
           <option value="local search">Local Search</option>
         </select>
 
         <label for="log_level">Log Level:</label>
-          <select id="log_level" name="log_level">
-            <option value="DEBUG" {% if selected_log_level == "DEBUG" %}selected{% endif %}>DEBUG</option>
-            <option value="INFO" {% if selected_log_level == "INFO" %}selected{% endif %}>INFO</option>
-            <option value="WARNING" {% if selected_log_level == "WARNING" %}selected{% endif %}>WARNING</option>
-            <option value="ERROR" {% if selected_log_level == "ERROR" %}selected{% endif %}>ERROR</option>
-            <option value="CRITICAL" {% if selected_log_level == "CRITICAL" %}selected{% endif %}>CRITICAL</option>
-          </select>
+        <select id="log_level" name="log_level">
+          <option value="DEBUG" {% if selected_log_level == "DEBUG" %}selected{% endif %}>DEBUG</option>
+          <option value="INFO" {% if selected_log_level == "INFO" %}selected{% endif %}>INFO</option>
+          <option value="WARNING" {% if selected_log_level == "WARNING" %}selected{% endif %}>WARNING</option>
+          <option value="ERROR" {% if selected_log_level == "ERROR" %}selected{% endif %}>ERROR</option>
+          <option value="CRITICAL" {% if selected_log_level == "CRITICAL" %}selected{% endif %}>CRITICAL</option>
+        </select>
 
         {% if error_message %}
-          <div class="error" id="error-message">
-            <strong>⚠️ Error:</strong>
-            <pre>{{ error_message }}</pre>
-          </div>
+        <div class="error" id="error-message">
+          <strong>⚠️ Error:</strong>
+          <pre>{{ error_message }}</pre>
+        </div>
         {% endif %}
 
         <div class="button-row">
@@ -138,11 +151,11 @@
     <!-- Output Section -->
     {% if output %}
     <section class="output-section" id="results">
-    <h2>📦 Output:</h2>
-    <pre>{{ output }}</pre>
+      <h2>📦 Output:</h2>
+      <pre>{{ output }}</pre>
 
-    <h3>🪵 Run Logs:</h3>
-    <pre>{{ logs }}</pre>
+      <h3>🪵 Run Logs:</h3>
+      <pre>{{ logs }}</pre>
     </section>
     {% endif %}
   </div>
@@ -151,80 +164,75 @@
   <script>
     // Show spinner on form submit
     document.querySelector("form").addEventListener("submit", function () {
-        document.getElementById("loading-overlay").style.display = "flex";
+      document.getElementById("loading-overlay").style.display = "flex";
     });
 
     // Scroll to results or error after reload
     window.onload = function () {
-        const error = document.getElementById("error-message");
-        const results = document.getElementById("results");
+      const error = document.getElementById("error-message");
+      const results = document.getElementById("results");
 
-        if (error) {
-            error.scrollIntoView({ behavior: "smooth", block: "center" });
-        } else if (results) {
-            results.scrollIntoView({ behavior: "smooth" });
-        }
+      if (error) {
+        error.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else if (results) {
+        results.scrollIntoView({ behavior: "smooth" });
+      }
     };
 
-  function fillExample() {
-    const binInput = document.getElementById("binsize");
-    const numItemsInput = document.getElementById("num_items");
-    const itemsInput = document.getElementById("items");
+    function fillExample() {
+      const binInput = document.getElementById("binsize");
+      const numItemsInput = document.getElementById("num_items");
+      const itemsInput = document.getElementById("items");
 
-    const MIN_BIN_SIZE = 100;
-    const MAX_BIN_SIZE = 1000;
-    const MIN_ITEMS = 6;
-    const MAX_ITEMS = 60;
+      const MIN_BIN_SIZE = 100;
+      const MAX_BIN_SIZE = 1000;
+      const MIN_ITEMS = 6;
+      const MAX_ITEMS = 60;
 
-    // Generate bin size randomly
-    const bin_size = getRandomInt(MIN_BIN_SIZE, MAX_BIN_SIZE);
-    binInput.value = bin_size;
+      // Generate bin size randomly
+      const bin_size = getRandomInt(MIN_BIN_SIZE, MAX_BIN_SIZE);
+      binInput.value = bin_size;
 
-    // Check if user entered num_items
-    let userNumItems = numItemsInput.value.trim();
-    let num_items;
+      // Check if user entered num_items
+      let userNumItems = numItemsInput.value.trim();
+      let num_items;
 
-    if (userNumItems) {
-      num_items = parseInt(userNumItems);
-      if (isNaN(num_items) || num_items < 3 || num_items % 3 !== 0) {
-        alert("Number of items must be a positive multiple of 3.");
-        return;
+      if (userNumItems) {
+        num_items = parseInt(userNumItems);
+        if (isNaN(num_items) || num_items < 3 || num_items % 3 !== 0) {
+          alert("Number of items must be a positive multiple of 3.");
+          return;
+        }
+      } else {
+        const groupCount = getRandomInt(MIN_ITEMS / 3, MAX_ITEMS / 3);
+        num_items = groupCount * 3;
+        numItemsInput.value = num_items;
       }
-    } else {
-      const groupCount = getRandomInt(MIN_ITEMS / 3, MAX_ITEMS / 3);
-      num_items = groupCount * 3;
-      numItemsInput.value = num_items;
+
+      // Generate items based on bin size and num_items
+      const lower_bnd = Math.round(bin_size / 4);
+      const upper_bnd = Math.round(bin_size / 2);
+      const items = [];
+
+      for (let i = 0; i < num_items / 3; i++) {
+        const item1 = getRandomInt(lower_bnd, upper_bnd);
+        const item2 = getRandomInt(lower_bnd, upper_bnd);
+        const item3 = bin_size - (item1 + item2);
+        items.push(item1, item2, item3);
+      }
+
+      itemsInput.value = items.join(", ");
     }
 
-    // Generate items based on bin size and num_items
-    const lower_bnd = Math.round(bin_size / 4);
-    const upper_bnd = Math.round(bin_size / 2);
-    const items = [];
-
-    for (let i = 0; i < num_items / 3; i++) {
-      const item1 = getRandomInt(lower_bnd, upper_bnd);
-      const item2 = getRandomInt(lower_bnd, upper_bnd);
-      const item3 = bin_size - (item1 + item2);
-      items.push(item1, item2, item3);
+    function clearFields() {
+      document.getElementById("items").value = "";
+      document.getElementById("binsize").value = "";
+      document.getElementById("num_items").value = "";
     }
 
-    itemsInput.value = items.join(", ");
-  }
-
-  function clearFields() {
-    document.getElementById("items").value = '';
-    document.getElementById("binsize").value = '';
-    document.getElementById("num_items").value = '';
-  }
-
-  // Random integer between min and max (inclusive)
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-    const results = document.getElementById("results");
-    if (results) {
-    results.scrollIntoView({ behavior: "smooth" });
+    // Random integer between min and max (inclusive)
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
   </script>
 </body>

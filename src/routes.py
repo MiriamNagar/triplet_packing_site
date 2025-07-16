@@ -1,30 +1,28 @@
 # routes.py
 
-from flask import render_template, request, redirect, url_for, session
-from src import app
 import prtpy
-from prtpy.packing.triplet_algo.models import SolverData
-import logging, os
-from .logging_config import algo_logger
+import logging
 import io
-
 import traceback
-import inspect
-import os
+from flask import render_template, request
+from src import app
+from .logging_config import algo_logger
+from prtpy.packing.triplet_algo.models import SolverData
 
 
+# Utility: Set logging level
 def set_log_level(level_name):
-    level_dict = {
+    levels = {
         "DEBUG": logging.DEBUG,
         "INFO": logging.INFO,
         "WARNING": logging.WARNING,
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    log_level = level_dict.get(level_name)  # default to info
-    algo_logger.setLevel(log_level)
+    algo_logger.setLevel(levels.get(level_name, logging.INFO))
 
 
+# Main Route: Index Page
 @app.route("/", methods=["GET", "POST"])
 def index():
     output = ""
@@ -34,27 +32,24 @@ def index():
 
     if request.method == "POST":
         try:
+            # --- Get form inputs ---
             items_str = request.form["items"]
             binsize_str = request.form["binsize"]
-            method = str(request.form["method"])
-            print(f"method: {method}")
+            method = request.form["method"]
             selected_log_level = request.form["log_level"]
-            print(f"Received log level from form: {selected_log_level}")
 
             set_log_level(selected_log_level)
 
-            # --- Setup per-request in-memory logger ---
+            # --- Setup in-memory logging stream ---
             log_stream = io.StringIO()
             log_handler = logging.StreamHandler(log_stream)
-            log_handler.setFormatter(
-                logging.Formatter(
-                    "%(asctime)s - %(levelname)s - %(module)s - %(funcName)s - %(message)s",
-                    datefmt="%Y-%m-%d %H:%M:%S",
-                )
-            )
+            log_handler.setFormatter(logging.Formatter(
+                "%(asctime)s - %(levelname)s - %(module)s - %(funcName)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+            ))
             algo_logger.addHandler(log_handler)
 
-            # Validate items
+            # --- Validate & parse items ---
             if not items_str.strip():
                 raise ValueError("Please enter valid items.")
 
@@ -72,7 +67,7 @@ def index():
             if any(i <= 0 for i in items):
                 raise ValueError("All numbers must be positive.")
 
-            # Validate binsize now, safely
+            # --- Validate bin size ---
             if not binsize_str.strip():
                 raise ValueError("Please enter a bin size.")
 
@@ -84,6 +79,7 @@ def index():
             if binsize <= 0:
                 raise ValueError("Bin size must be a positive number.")
 
+            # --- Run algorithm ---
             if method == "backtracking":
                 output = prtpy.pack(
                     algorithm=prtpy.packing.triplet_packing,
@@ -99,23 +95,21 @@ def index():
                     outputtype=prtpy.out.PartitionAndSums,
                 )
 
-            # --- Retrieve logs & cleanup ---
+            # --- Collect logs and clean up ---
             algo_logger.removeHandler(log_handler)
             logs = log_stream.getvalue()
             log_stream.close()
 
         except Exception as e:
             tb = traceback.format_exc()
-            print(tb)  # Optional: still print full traceback to console for debugging
+            algo_logger.error(tb)  # Optional: useful for console debugging
 
-            # Default error message
             error_message = str(e) or tb
 
-            # Custom message for SolverData.Error
+            # Specific error messaging
             if isinstance(e, SolverData.Error):
                 error_message = "No solution exists for the given items and bin size."
             elif isinstance(e.__cause__, SolverData.NoSolution):
-                # In case it's wrapped inside another exception
                 error_message = str(e.__cause__)
 
             return render_template(
@@ -125,11 +119,16 @@ def index():
                 items=items_str,
                 binsize=binsize_str,
             )
+
     return render_template(
-        "index.html", output=output, logs=logs, selected_log_level=selected_log_level
+        "index.html",
+        output=output,
+        logs=logs,
+        selected_log_level=selected_log_level,
     )
 
 
+# Additional Pages
 @app.route("/about")
 def about():
     return render_template("about.html")
