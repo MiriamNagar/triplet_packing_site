@@ -1,2 +1,2 @@
-prtpy @ git+https://github.com/MiriamNagar/prtpy.git@65b09a8
+prtpy @ git+https://github.com/MiriamNagar/prtpy.git@bin-packing-instances-algo-frame-addition
 flask==3.1.1
