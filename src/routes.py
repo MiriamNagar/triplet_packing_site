@@ -1,15 +1,17 @@
 # routes.py
 
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for, session
 from src import app
-# from .your_algorithm_module import run_algorithm  # Replace with actual import
-from prtpy.packing.triplet_packing import backtrack_method, local_search
-from prtpy.binners import BinnerKeepingContents
-# from generate_random import create_random_allocatable_item_list
+import prtpy
+from prtpy.packing.triplet_algo.models import SolverData
 import logging, os
-from .import logging_config
+from .logging_config import algo_logger
+import io
 
+import traceback
 import inspect
+import os
+
 
 def set_log_level(level_name):
     level_dict = {
@@ -19,58 +21,126 @@ def set_log_level(level_name):
         'ERROR': logging.ERROR,
         'CRITICAL': logging.CRITICAL,
     }
-    log_level = level_dict.get(level_name, logging.INFO)  # default to info
-    logging.getLogger().setLevel(log_level)
+    log_level = level_dict.get(level_name)  # default to info
+    algo_logger.setLevel(log_level)
 
+import random
+
+def generate_items_from_count(num_items: int, binsize: int) -> list[int]:
+    """
+    Generate a list of item weights such that each triplet sums to binsize.
+    The total number of items must be a multiple of 3.
+    
+    Args:
+        num_items (int): Total number of items (must be a multiple of 3).
+        binsize (int): The bin capacity that each triplet must sum to.
+        
+    Returns:
+        List[int]: A list of item weights.
+        
+    Raises:
+        ValueError: If num_items is not a positive multiple of 3 or binsize is invalid.
+    """
+    if num_items < 3 or num_items % 3 != 0:
+        raise ValueError("Number of items must be a positive multiple of 3.")
+    if binsize <= 0:
+        raise ValueError("Bin size must be a positive integer.")
+
+    lower_bnd = binsize // 4
+    upper_bnd = binsize // 2
+    items = []
+
+    for _ in range(num_items // 3):
+        item1 = random.randint(lower_bnd, upper_bnd)
+        item2 = random.randint(lower_bnd, upper_bnd)
+        item3 = binsize - (item1 + item2)
+        items.extend([item1, item2, item3])
+
+    return items
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     output = ""
     logs = ""
     error_message = ""
-
-    selected_log_level = 'INFO'  # set default
+    selected_log_level = "INFO"
 
     if request.method == 'POST':
         try:
             items_str = request.form['items']
-            binsize = int(request.form['binsize'])
+            binsize_str = request.form['binsize']
             method = str(request.form["method"])
-            selected_log_level = request.form.get('log_level', 'INFO')
+            print(f"method: {method}")
+            selected_log_level = request.form['log_level']
+            print(f"Received log level from form: {selected_log_level}")
 
             set_log_level(selected_log_level)
 
-            if not items_str:
-                raise ValueError("Please enter item values.")
+            # --- Setup per-request in-memory logger ---
+            log_stream = io.StringIO()
+            log_handler = logging.StreamHandler(log_stream)
+            log_handler.setFormatter(logging.Formatter(
+                "%(asctime)s - %(levelname)s - %(module)s - %(funcName)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            ))
+            algo_logger.addHandler(log_handler)
 
-            items = [int(x.strip()) for x in items_str.split(',') if x.strip()]
-            if any(i <= 0 for i in items) or binsize <= 0:
+            # Validate items
+            if not items_str.strip():
+                raise ValueError("Please enter valid items.")
+
+            item_parts = [x.strip() for x in items_str.split(',') if x.strip()]
+            if not item_parts:
+                raise ValueError("Please enter valid items.")
+
+            try:
+                items = [int(x) for x in item_parts]
+            except ValueError:
+                raise ValueError("Please enter only comma-separated positive integers like: 100, 200, 300.")
+
+            if any(i <= 0 for i in items):
                 raise ValueError("All numbers must be positive.")
 
-            # Run your algorithm
+            # Validate binsize now, safely
+            if not binsize_str.strip():
+                raise ValueError("Please enter a bin size.")
+
+            try:
+                binsize = int(binsize_str)
+            except ValueError:
+                raise ValueError("Bin size must be a whole number.")
+
+            if binsize <= 0:
+                raise ValueError("Bin size must be a positive number.")
+
             if method == "backtracking":
-                output = backtrack_method(BinnerKeepingContents(), binsize, items)
+                output = prtpy.pack(algorithm=prtpy.packing.triplet_packing, binsize=binsize, items=items, outputtype=prtpy.out.PartitionAndSums)
             elif method == "local search":
-                output = local_search(BinnerKeepingContents(), binsize, items)
-            
-            # read log file
-            if os.path.exists('algorithm.log'):
-                with open('algorithm.log', 'r') as log_file:
-                    logs = log_file.read()
-            else:
-                logs = "No log file found. Logging might not have started yet."
+                output = prtpy.pack(algorithm=prtpy.packing.triplet_packing, binsize=binsize, items=items, outputtype=prtpy.out.PartitionAndSums)
+
+            # --- Retrieve logs & cleanup ---
+            algo_logger.removeHandler(log_handler)
+            logs = log_stream.getvalue()
+            log_stream.close()
+
+            # return render_template("results.html", output=output, logs=logs)
 
         except Exception as e:
-            error_message = str(e)
+            tb = traceback.format_exc()
+            print(tb)  # Optional: still print full traceback to console for debugging
 
-    # return render_template("index.html", output=output, logs=logs, error_message=error_message)
-    return render_template(
-        "index.html",
-        output=output,
-        logs=logs,
-        error_message=error_message,
-        selected_log_level=selected_log_level
-    )
+            # Default error message
+            error_message = str(e) or tb
+
+            # Custom message for SolverData.Error
+            if isinstance(e, SolverData.Error):
+                error_message = "No solution exists for the given items and bin size."
+            elif isinstance(e.__cause__, SolverData.NoSolution):
+                # In case it's wrapped inside another exception
+                error_message = str(e.__cause__)
+
+            return render_template("index.html", error_message=error_message, selected_log_level=selected_log_level, items=items_str, binsize=binsize_str)
+    return render_template("index.html", output=output, logs=logs, selected_log_level=selected_log_level)
 
 
 @app.route('/about')
@@ -86,5 +156,3 @@ def algorithm():
 @app.route('/how-to-use')
 def how_to_use():
     return render_template("how_to_use.html")
-
-

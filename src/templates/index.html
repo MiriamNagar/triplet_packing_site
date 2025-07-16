@@ -45,11 +45,27 @@
     <!-- Input Section -->
     <section class="form-section">
       <form method="POST">
+        <!-- <label for="num_items">Number of Items (multiple of 3):</label>
+        <input type="number" id="num_items" name="num_items" min="3" step="3" placeholder="e.g., 6, 9, 12" /> -->
+        <label>Number of Items:</label>
+        <input type="number" name="num_items" id="num_items" placeholder="Optional – multiple of 3" value="{{ request.form.get('num_items', '') }}" />
+        
         <label>Items (comma-separated):</label>
-        <input type="text" name="items" id="items" placeholder="e.g., 300, 150, 200, 400" />
+        <textarea name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400">{{ request.form.get('items', '') }}</textarea>
+
+
+        <!-- <label>Items (comma-separated):</label>
+        <textarea type="text" name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400" value="{{ request.form.get('items', '') }}" ></textarea> -->
 
         <label>Bin Size:</label>
-        <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" />
+        <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" value="{{ request.form.get('binsize', '') }}" />
+
+<!--         
+        <label>Items (comma-separated):</label>
+        <textarea name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400"></textarea>
+
+        <label>Bin Size:</label>
+        <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" /> -->
 
         <label>method:</label>
         <select name="method" id="method">
@@ -74,12 +90,16 @@
         </select> -->
 
         {% if error_message %}
-          <div class="error">{{ error_message }}</div>
+          <div class="error" id="error-message">
+            <strong>⚠️ Error:</strong>
+            <pre>{{ error_message }}</pre>
+          </div>
         {% endif %}
 
         <div class="button-row">
           <button type="submit">Run Algorithm</button>
-          <button type="button" onclick="fillExample()">Use Example Input</button>
+          <button type="button" onclick="fillExample()">Use Random Example Input</button>
+          <button type="button" onclick="clearFields()">Clear Input</button>
         </div>
       </form>
     </section>
@@ -112,46 +132,85 @@
 
     // Scroll to results after reload
     window.onload = function () {
+        const error = document.getElementById("error-message");
         const results = document.getElementById("results");
-        if (results) {
-        results.scrollIntoView({ behavior: "smooth" });
+
+        if (error) {
+            error.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (results) {
+            results.scrollIntoView({ behavior: "smooth" });
         }
     };
 
+  
+
   function fillExample() {
-    // Constants similar to Python defaults
-    const DEFAULT_BIN_SIZE = 1000;
-    const DEFAULT_ITEM_NUM = 60;
-    const MIN_BIN_SIZE = 50;
-    const ITEM_NUM = 18;
+    const binInput = document.getElementById("binsize");
+    const numItemsInput = document.getElementById("num_items");
+    const itemsInput = document.getElementById("items");
 
-    // Randomly choose bin_size and items_num (multiple of 3)
-    let bin_size = Math.floor(Math.random() * 900) + 100; // 100–1000
-    bin_size = Math.max(bin_size, MIN_BIN_SIZE);
+    const MIN_BIN_SIZE = 100;
+    const MAX_BIN_SIZE = 1000;
+    const MIN_ITEMS = 6;
+    const MAX_ITEMS = 60;
 
-    // let items_num = Math.floor(Math.random() * 30) * 3 + 3; // multiples of 3, between 3 and 90
-    // items_num = Math.max(items_num, MIN_ITEM_NUM);
+    // Generate bin size randomly
+    const bin_size = getRandomInt(MIN_BIN_SIZE, MAX_BIN_SIZE);
+    binInput.value = bin_size;
 
+    // Check if user entered num_items
+    let userNumItems = numItemsInput.value.trim();
+    let num_items;
+
+    if (userNumItems) {
+      num_items = parseInt(userNumItems);
+      if (isNaN(num_items) || num_items < 3 || num_items % 3 !== 0) {
+        alert("Number of items must be a positive multiple of 3.");
+        return;
+      }
+    } else {
+      const groupCount = getRandomInt(MIN_ITEMS / 3, MAX_ITEMS / 3);
+      num_items = groupCount * 3;
+      numItemsInput.value = num_items;
+    }
+
+    // Generate items based on bin size and num_items
     const lower_bnd = Math.round(bin_size / 4);
     const upper_bnd = Math.round(bin_size / 2);
-
     const items = [];
 
-    for (let i = 0; i < ITEM_NUM / 3; i++) {
+    for (let i = 0; i < num_items / 3; i++) {
       const item1 = getRandomInt(lower_bnd, upper_bnd);
       const item2 = getRandomInt(lower_bnd, upper_bnd);
       const item3 = bin_size - (item1 + item2);
       items.push(item1, item2, item3);
     }
 
-    document.getElementById("items").value = items.join(", ");
-    document.getElementById("binsize").value = bin_size;
+    itemsInput.value = items.join(", ");
   }
 
-  // Random integer between min and max, inclusive
+  function clearFields() {
+    document.getElementById("items").value = '';
+    document.getElementById("binsize").value = '';
+    document.getElementById("num_items").value = '';
+  }
+
+  // Scroll to results or error if present
+  window.onload = function () {
+    const error = document.getElementById("error-message");
+    const results = document.getElementById("results");
+    if (error) {
+      error.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else if (results) {
+      results.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+  // Random integer between min and max (inclusive)
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+
+
 
     // // Scroll to the output if it exists
     // window.onload = function () {

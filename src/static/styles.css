@@ -8,7 +8,7 @@ body {
 }
 
 .container {
-  max-width: 750px;
+  max-width: 1100px;
   margin: auto;
   background: white;
   padding: 2.5rem;
@@ -164,4 +164,25 @@ pre {
   font-size: 1.2rem;
   color: #4f46e5; /* blue */
   font-weight: bold;
+}
+
+.error {
+  color: #b30000;
+  background-color: #ffe6e6;
+  border: 1px solid #b30000;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border-radius: 8px;
+  border: 1px solid #b5b5d6;
+  background: #f9faff;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: inherit;
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Algorithm Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📦 Algorithm Results</h1>
+    </header>
+
+    <section class="output-section">
+      <h2>Output:</h2>
+      <pre>{{ output }}</pre>
+
+      <h3>🪵 Run Logs:</h3>
+      <pre>{{ logs }}</pre>
+
+      <a href="{{ url_for('index') }}"><button>🔁 Run Another Example</button></a>
+    </section>
+  </div>
+</body>
+</html>
