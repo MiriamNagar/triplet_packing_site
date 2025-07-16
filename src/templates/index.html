@@ -45,27 +45,15 @@
     <!-- Input Section -->
     <section class="form-section">
       <form method="POST">
-        <!-- <label for="num_items">Number of Items (multiple of 3):</label>
-        <input type="number" id="num_items" name="num_items" min="3" step="3" placeholder="e.g., 6, 9, 12" /> -->
+
         <label>Number of Items:</label>
         <input type="number" name="num_items" id="num_items" placeholder="Optional – multiple of 3" value="{{ request.form.get('num_items', '') }}" />
         
         <label>Items (comma-separated):</label>
         <textarea name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400">{{ request.form.get('items', '') }}</textarea>
 
-
-        <!-- <label>Items (comma-separated):</label>
-        <textarea type="text" name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400" value="{{ request.form.get('items', '') }}" ></textarea> -->
-
         <label>Bin Size:</label>
         <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" value="{{ request.form.get('binsize', '') }}" />
-
-<!--         
-        <label>Items (comma-separated):</label>
-        <textarea name="items" id="items" rows="3" placeholder="e.g., 300, 150, 200, 400"></textarea>
-
-        <label>Bin Size:</label>
-        <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" /> -->
 
         <label>method:</label>
         <select name="method" id="method">
@@ -81,13 +69,6 @@
             <option value="ERROR" {% if selected_log_level == "ERROR" %}selected{% endif %}>ERROR</option>
             <option value="CRITICAL" {% if selected_log_level == "CRITICAL" %}selected{% endif %}>CRITICAL</option>
           </select>
-
-        <!-- <label for="binners">Select Binner:</label>
-        <select name="binners" id="binners">
-          {% for binner in binners %}
-            <option value="{{ binner }}">{{ binner }}</option>
-          {% endfor %}
-        </select> -->
 
         {% if error_message %}
           <div class="error" id="error-message">
@@ -106,13 +87,6 @@
 
     <!-- Output Section -->
     {% if output %}
-    <!-- <section class="output-section">
-      <h2>📦 Output:</h2>
-      <pre>{{ output }}</pre>
-
-      <h3>🪵 Run Logs:</h3>
-      <pre>{{ logs }}</pre>
-    </section> -->
     <section class="output-section" id="results">
     <h2>📦 Output:</h2>
     <pre>{{ output }}</pre>
@@ -141,8 +115,6 @@
             results.scrollIntoView({ behavior: "smooth" });
         }
     };
-
-  
 
   function fillExample() {
     const binInput = document.getElementById("binsize");
@@ -209,16 +181,6 @@
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-
-
-    // // Scroll to the output if it exists
-    // window.onload = function () {
-    //     const outputSection = document.querySelector(".output-section");
-    //     if (outputSection) {
-    //     outputSection.scrollIntoView({ behavior: "smooth" });
-    //     }
-    // };
 
     const results = document.getElementById("results");
     if (results) {

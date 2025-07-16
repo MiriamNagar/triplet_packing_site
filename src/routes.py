@@ -24,39 +24,6 @@ def set_log_level(level_name):
     log_level = level_dict.get(level_name)  # default to info
     algo_logger.setLevel(log_level)
 
-import random
-
-def generate_items_from_count(num_items: int, binsize: int) -> list[int]:
-    """
-    Generate a list of item weights such that each triplet sums to binsize.
-    The total number of items must be a multiple of 3.
-    
-    Args:
-        num_items (int): Total number of items (must be a multiple of 3).
-        binsize (int): The bin capacity that each triplet must sum to.
-        
-    Returns:
-        List[int]: A list of item weights.
-        
-    Raises:
-        ValueError: If num_items is not a positive multiple of 3 or binsize is invalid.
-    """
-    if num_items < 3 or num_items % 3 != 0:
-        raise ValueError("Number of items must be a positive multiple of 3.")
-    if binsize <= 0:
-        raise ValueError("Bin size must be a positive integer.")
-
-    lower_bnd = binsize // 4
-    upper_bnd = binsize // 2
-    items = []
-
-    for _ in range(num_items // 3):
-        item1 = random.randint(lower_bnd, upper_bnd)
-        item2 = random.randint(lower_bnd, upper_bnd)
-        item3 = binsize - (item1 + item2)
-        items.extend([item1, item2, item3])
-
-    return items
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -122,8 +89,6 @@ def index():
             algo_logger.removeHandler(log_handler)
             logs = log_stream.getvalue()
             log_stream.close()
-
-            # return render_template("results.html", output=output, logs=logs)
 
         except Exception as e:
             tb = traceback.format_exc()
