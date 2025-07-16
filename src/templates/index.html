@@ -21,25 +21,75 @@
     <!-- Title -->
     <header>
       <h1>Packing Algorithm Demo</h1>
-      <p>Based on the article: <em>Your Algorithm Name Here</em></p>
+      <p>Based on the article: <em>"Solution of Bin Packing Instances in Falkenauer T Class: Not So Hard"</em></p>
     </header>
 
     <!-- Expandables -->
     <section class="expandables">
       <details>
         <summary>🧠 About the Algorithm</summary>
-        <p>Explain your algorithm here. You can include citation, behavior, etc.</p>
+        <p>
+          This project demonstrates an implementation of the <strong>Triplet Packing Problem</strong>, 
+          a constrained variant of bin packing where items must be grouped into triplets whose total weight equals a fixed bin size.
+        </p>
+        <p>
+          The core algorithm is implemented using <code>triplet_algo</code> from the <a href="https://github.com/coin-or/prtpy" target="_blank" rel="noopener noreferrer">prtpy</a> library.
+        </p>
+        <p>
+          Two solving strategies are supported:
+        </p>
+        <ul>
+          <li><strong>Backtracking</strong> – an exhaustive recursive approach.</li>
+          <li><strong>Local Search</strong> – a heuristic method to improve solutions iteratively.</li>
+        </ul>
+        <p>
+          The underlying approach is based on the paper:<br />
+          <strong>"Solution of Bin Packing Instances in Falkenauer T Class: Not So Hard"</strong><br />
+          by György Dósa, András Éles, Angshuman Robin Goswami, István Szalkai, Zsolt Tuza (2025)<br />
+          <a href="https://www.mdpi.com/1999-4893/18/2/115#" target="_blank" rel="noopener noreferrer">Article link</a>
+        </p>
       </details>
+
 
       <details>
         <summary>📘 How to Use</summary>
-        <p>Instructions on how users can input data, what to expect as output, etc.</p>
+        <ol>
+          <li>Enter a list of positive integers as <strong>items</strong>, separated by commas (e.g., <code>300, 250, 450</code>).</li>
+          <li>Enter a <strong>bin size</strong> that each triplet should sum to (e.g., <code>1000</code>).</li>
+          <li>Choose a <strong>method</strong>: Backtracking or Local Search.</li>
+          <li>Optionally select a <strong>log level</strong> to control the verbosity of the internal algorithm trace.</li>
+          <li>Click <strong>Run Algorithm</strong> to see the result.</li>
+          <li>To try a random valid instance, click <strong>Use Random Example Input</strong>. You can also first input the number of items you want to randomly generate and than click the <strong>Use Random Example Input</strong> to generate an exact items number</li>
+        </ol>
+        <p>Errors (e.g., if triplet grouping is not possible) will be displayed with a detailed message.</p>
       </details>
 
       <details>
         <summary>👩‍💻 About the Developer</summary>
-        <p>Write about yourself, your background, links to your GitHub, etc.</p>
+        <p>
+          Hi! I'm <strong>Miriam Nagar</strong>, a computer science student at Ariel University. This website is part of a final project I created for the <em>Research Algorithms</em> course, where we explored algorithmic strategies for solving complex real-world problems.
+        </p>
+        <p>
+          My project focuses on the <strong>Triplet Packing Problem</strong> — a constrained variation of bin packing where items must be grouped into triplets such that each group exactly fills a bin. I implemented and demonstrated both a backtracking-based solver and a local search heuristic.
+        </p>
+        <p>
+          The project builds on the algorithmic framework proposed in the paper:<br>
+          <em>"Solution of Bin Packing Instances in Falkenauer T Class: Not So Hard"</em><br>
+          by György Dósa, András Éles, Angshuman Robin Goswami, István Szalkai, Zsolt Tuza<br>
+          📄 <a href="https://www.mdpi.com/1999-4893/18/2/115#" target="_blank" rel="noopener noreferrer">Link to article</a>
+        </p>
+        <p>
+          I integrated my implementation into a fork of the open-source Python library <code>prtpy</code>, which provides flexible tools for modeling and solving packing and partitioning problems.
+        </p>
+        <p>
+          You can view the full project code and this interactive demo site here:<br>
+          🔗 <a href="https://github.com/MiriamNagar/triplet_packing_site" target="_blank" rel="noopener noreferrer">github.com/MiriamNagar/triplet_packing_site</a>
+        </p>
+        <p>
+          Thanks for visiting and happy packing! 📦
+        </p>
       </details>
+
     </section>
 
     <!-- Input Section -->
@@ -55,10 +105,10 @@
         <label>Bin Size:</label>
         <input type="number" name="binsize" id="binsize" placeholder="e.g., 1000" value="{{ request.form.get('binsize', '') }}" />
 
-        <label>method:</label>
+        <label>Method:</label>
         <select name="method" id="method">
-          <option value="backtracking">backtracking</option>
-          <option value="local search">local search</option>
+          <option value="backtracking">Backtracking</option>
+          <option value="local search">Local Search</option>
         </select>
 
         <label for="log_level">Log Level:</label>
@@ -104,7 +154,7 @@
         document.getElementById("loading-overlay").style.display = "flex";
     });
 
-    // Scroll to results after reload
+    // Scroll to results or error after reload
     window.onload = function () {
         const error = document.getElementById("error-message");
         const results = document.getElementById("results");
@@ -167,16 +217,6 @@
     document.getElementById("num_items").value = '';
   }
 
-  // Scroll to results or error if present
-  window.onload = function () {
-    const error = document.getElementById("error-message");
-    const results = document.getElementById("results");
-    if (error) {
-      error.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (results) {
-      results.scrollIntoView({ behavior: "smooth" });
-    }
-  };
   // Random integer between min and max (inclusive)
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
