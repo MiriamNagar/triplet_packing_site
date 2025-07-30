@@ -44,7 +44,7 @@ def index():
             log_stream = io.StringIO()
             log_handler = logging.StreamHandler(log_stream)
             log_handler.setFormatter(logging.Formatter(
-                "%(asctime)s - %(levelname)s - %(module)s - %(funcName)s - %(message)s",
+                "%(asctime)s - %(levelname)s - %(module)s - %(message)s",
                 datefmt="%Y-%m-%d %H:%M:%S",
             ))
             algo_logger.addHandler(log_handler)
@@ -93,6 +93,7 @@ def index():
                     binsize=binsize,
                     items=items,
                     outputtype=prtpy.out.PartitionAndSums,
+                    use_local_search=True
                 )
 
             # --- Collect logs and clean up ---
