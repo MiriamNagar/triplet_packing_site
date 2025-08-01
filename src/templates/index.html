@@ -149,16 +149,18 @@
     </section>
 
     <!-- Output Section -->
-    {% if output %}
+    {% if output or logs %}
     <section class="output-section" id="results">
-      <h2>📦 Output:</h2>
-      <pre>{{ output }}</pre>
-
-      <h3>🪵 Run Logs:</h3>
-      <pre>{{ logs }}</pre>
+      {% if output %}
+        <h2>📦 Output:</h2>
+        <pre>{{ output }}</pre>
+      {% endif %}
+      {% if logs %}
+        <h3>🪵 Run Logs:</h3>
+        <pre>{{ logs }}</pre>
+      {% endif %}
     </section>
     {% endif %}
-  </div>
 
   <!-- JavaScript -->
   <script>

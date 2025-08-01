@@ -97,13 +97,18 @@ def index():
                 )
 
             # --- Collect logs and clean up ---
-            algo_logger.removeHandler(log_handler)
             logs = log_stream.getvalue()
             log_stream.close()
+            algo_logger.removeHandler(log_handler)
 
         except Exception as e:
             tb = traceback.format_exc()
-            algo_logger.error(tb)  # Optional: useful for console debugging
+            algo_logger.error(tb)
+
+            # Get logs BEFORE closing the stream
+            logs = log_stream.getvalue()
+            log_stream.close()
+            algo_logger.removeHandler(log_handler)
 
             error_message = str(e) or tb
 
@@ -119,6 +124,7 @@ def index():
                 selected_log_level=selected_log_level,
                 items=items_str,
                 binsize=binsize_str,
+                logs=logs,
             )
 
     return render_template(
